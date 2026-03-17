@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ash Kadam — Portfolio</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+
+  #deck {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+
+  #stage {
+    position: relative;
+    width: min(100vw, 177.78vh);
+    height: min(100vh, 56.25vw);
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .video-slot {
+    position: absolute;
+    z-index: 10;
+  }
+
+  .video-inner {
+    width: 100%; height: 100%;
+    background: #08080f;
+    overflow: hidden;
+  }
+
+  .video-placeholder {
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.2);
+    border: 1.5px dashed rgba(255,255,255,0.12);
+  }
+
+  .video-icon { font-size: 1.8em; opacity: 0.25; }
+  .video-label { font-size: 0.72em; font-style: italic; font-family: Calibri, sans-serif; }
+  .video-hint { font-size: 0.58em; opacity: 0.6; text-align: center; padding: 0 8%; font-family: Calibri, sans-serif; }
+
+  #nav {
+    position: fixed;
+    bottom: 18px; left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 100;
+    background: rgba(0,0,0,0.5);
+    padding: 7px 16px;
+    border-radius: 24px;
+    backdrop-filter: blur(10px);
+    transition: opacity 0.4s;
+  }
+
+  body.idle #nav,
+  body.idle #fs-btn { opacity: 0; pointer-events: none; }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.8);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.12); }
+
+  #counter {
+    color: rgba(255,255,255,0.4);
+    font-size: 10px;
+    min-width: 42px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    flex-shrink: 0;
+  }
+
+  #dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 200px;
+    justify-content: center;
+  }
+
+  .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    flex-shrink: 0;
+  }
+  .dot.active { background: white; transform: scale(1.5); }
+
+  #fs-btn {
+    position: fixed;
+    top: 14px; right: 14px;
+    z-index: 100;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.7);
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+    transition: opacity 0.4s;
+  }
+
+  /* #coords {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    z-index: 200;
+    background: rgba(0,0,0,0.75);
+    color: #00ff99;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(0,255,153,0.3);
+    pointer-events: none;
+    letter-spacing: 0.5px;
+  } */
+</style>
+</head>
+<body>
+
+<div id="deck">
+  <div id="stage">
+    <div class="slide active" data-index="0">
+      <img class="slide-bg" src="Slide1.png" alt="Slide 1" draggable="false">
+    </div>
+    <div class="slide" data-index="1">
+      <img class="slide-bg" src="Slide2.png" alt="Slide 2" draggable="false">
+    </div>
+    <div class="slide" data-index="2">
+      <img class="slide-bg" src="Slide3.png" alt="Slide 3" draggable="false">
+    </div>
+    <div class="slide" data-index="3">
+      <img class="slide-bg" src="Slide4.png" alt="Slide 4" draggable="false">
+    </div>
+    <div class="slide" data-index="4">
+      <img class="slide-bg" src="Slide5.png" alt="Slide 5" draggable="false">
+    </div>
+    <div class="slide" data-index="5">
+      <img class="slide-bg" src="Slide6.png" alt="Slide 6" draggable="false">
+    </div>
+    <div class="slide" data-index="6">
+      <img class="slide-bg" src="Slide7.png" alt="Slide 7" draggable="false">
+    </div>
+    <div class="slide" data-index="7">
+      <img class="slide-bg" src="Slide8.png" alt="Slide 8" draggable="false">
+    </div>
+    <div class="slide" data-index="8">
+      <img class="slide-bg" src="Slide9.png" alt="Slide 9" draggable="false">
+    </div>
+    <div class="slide" data-index="9">
+      <img class="slide-bg" src="Slide10.png" alt="Slide 10" draggable="false">
+    </div>
+    <div class="slide" data-index="10">
+      <img class="slide-bg" src="Slide11.png" alt="Slide 11" draggable="false">
+    </div>
+    <div class="slide" data-index="11">
+      <img class="slide-bg" src="Slide12.png" alt="Slide 12" draggable="false">
+    </div>
+    <div class="slide" data-index="12">
+      <img class="slide-bg" src="Slide13.png" alt="Slide 13" draggable="false">
+    </div>
+    <div class="slide" data-index="13">
+      <img class="slide-bg" src="Slide14.png" alt="Slide 14" draggable="false">
+    </div>
+    <div class="slide" data-index="14">
+      <img class="slide-bg" src="Slide15.png" alt="Slide 15" draggable="false">
+    </div>
+    <div class="slide" data-index="15">
+      <img class="slide-bg" src="Slide16.png" alt="Slide 16" draggable="false">
+
+        <div class="video-slot" id="vid_bigfidget" style="left:47.0%;top:50.66%;width:24.5%;height:45.33%;">
+          <div class="video-inner">
+            <div class="video-placeholder">
+              <div class="video-icon">&#9654;</div>
+              <div class="video-label">Big Fidget — Video</div>
+              <div class="video-hint">Replace with video embed below</div>
+            </div>
+            <iframe src="https://www.youtube.com/embed/6_WTqqkWxoY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;display:block;"></iframe>
+          </div>
+        </div>    </div>
+    <div class="slide" data-index="16">
+      <img class="slide-bg" src="Slide17.png" alt="Slide 17" draggable="false">
+    </div>
+    <div class="slide" data-index="17">
+      <img class="slide-bg" src="Slide18.png" alt="Slide 18" draggable="false">
+
+        <div class="video-slot" id="vid_shroom_hero" style="left:47.0%;top:3.56%;width:50.0%;height:92.44%;">
+          <div class="video-inner">
+            <div class="video-placeholder">
+              <div class="video-icon">&#9654;</div>
+              <div class="video-label">Shroominations — Video</div>
+              <div class="video-hint">Replace with video embed below</div>
+            </div>
+            <iframe src="https://www.youtube.com/embed/jVnxjLN5TIE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;display:block;"></iframe>
+          </div>
+        </div>    </div>
+    <div class="slide" data-index="18">
+      <img class="slide-bg" src="Slide19.png" alt="Slide 19" draggable="false">
+
+        <div class="video-slot" id="vid_shroom_detail" style="left:41.32%;top:48.14%;width:19.15%;height:48.56%;">
+          <div class="video-inner">
+            <div class="video-placeholder">
+              <div class="video-icon">&#9654;</div>
+              <div class="video-label">Shroominations — Detail Video</div>
+              <div class="video-hint">Replace with video embed below</div>
+            </div>
+            <iframe src="https://www.youtube.com/embed/RFvR6DKo2-A" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;display:block;"></iframe>
+          </div>
+        </div>    </div>
+    <div class="slide" data-index="19">
+      <img class="slide-bg" src="Slide20.png" alt="Slide 20" draggable="false">
+
+        <div class="video-slot" id="vid_cc1" style="left:47.0%;top:3.56%;width:50%;height:45.33%;">
+          <div class="video-inner">
+            <div class="video-placeholder">
+              <div class="video-icon">&#9654;</div>
+              <div class="video-label">Custom Constellation — Channel 1</div>
+              <div class="video-hint">Replace with video embed below</div>
+            </div>
+            <iframe src="https://www.youtube.com/embed/Aqk38HqYOT0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;display:block;"></iframe>
+          </div>
+        </div>
+        <div class="video-slot" id="vid_cc2" style="left:47.0%;top:50.67%;width:50.0%;height:45.33%;">
+          <div class="video-inner">
+            <div class="video-placeholder">
+              <div class="video-icon">&#9654;</div>
+              <div class="video-label">Custom Constellation — Channel 2</div>
+              <div class="video-hint">Replace with video embed below</div>
+            </div>
+            <iframe src="https://www.youtube.com/embed/s0gYaJYR-dE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;display:block;"></iframe>
+          </div>
+        </div>    </div>
+    <div class="slide" data-index="20">
+      <img class="slide-bg" src="Slide21.png" alt="Slide 21" draggable="false">
+    </div>
+    <div class="slide" data-index="21">
+      <img class="slide-bg" src="Slide22.png" alt="Slide 22" draggable="false">
+
+        <div class="video-slot" id="vid_alphabeta" style="left:2.5%;top:8.89%;width:95.0%;height:88.18%;">
+          <div class="video-inner">
+            <div class="video-placeholder">
+              <div class="video-icon">&#9654;</div>
+              <div class="video-label">Alpha Beta — Performance Video</div>
+              <div class="video-hint">Replace with video embed below</div>
+            </div>
+            <iframe src="https://www.youtube.com/embed/r339BqkpTBs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;display:block;"></iframe>
+          </div>
+        </div>    </div>
+    <div class="slide" data-index="22">
+      <img class="slide-bg" src="Slide23.png" alt="Slide 23" draggable="false">
+    </div>
+    <div class="slide" data-index="23">
+      <img class="slide-bg" src="Slide24.png" alt="Slide 24" draggable="false">
+
+        <div class="video-slot" id="vid_saczone" style="left:2.5%;top:8.89%;width:53.72%;height:88.18%;">
+          <div class="video-inner">
+            <div class="video-placeholder">
+              <div class="video-icon">&#9654;</div>
+              <div class="video-label">Sacrifice Zone — Video Walkthrough</div>
+              <div class="video-hint">Replace with video embed below</div>
+            </div>
+            <iframe src="https://www.youtube.com/embed/R016O2QP6ng" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;display:block;"></iframe>
+          </div>
+        </div>    </div>
+    <div class="slide" data-index="24">
+      <img class="slide-bg" src="Slide25.png" alt="Slide 25" draggable="false">
+    </div>
+  </div>
+</div>
+
+<div id="nav">
+  <button class="nav-btn" onclick="go(-1)">&#8592;</button>
+  <div id="dots">
+    <div class="dot  active" onclick="goTo(0)"></div>
+    <div class="dot" onclick="goTo(1)"></div>
+    <div class="dot" onclick="goTo(2)"></div>
+    <div class="dot" onclick="goTo(3)"></div>
+    <div class="dot" onclick="goTo(4)"></div>
+    <div class="dot" onclick="goTo(5)"></div>
+    <div class="dot" onclick="goTo(6)"></div>
+    <div class="dot" onclick="goTo(7)"></div>
+    <div class="dot" onclick="goTo(8)"></div>
+    <div class="dot" onclick="goTo(9)"></div>
+    <div class="dot" onclick="goTo(10)"></div>
+    <div class="dot" onclick="goTo(11)"></div>
+    <div class="dot" onclick="goTo(12)"></div>
+    <div class="dot" onclick="goTo(13)"></div>
+    <div class="dot" onclick="goTo(14)"></div>
+    <div class="dot" onclick="goTo(15)"></div>
+    <div class="dot" onclick="goTo(16)"></div>
+    <div class="dot" onclick="goTo(17)"></div>
+    <div class="dot" onclick="goTo(18)"></div>
+    <div class="dot" onclick="goTo(19)"></div>
+    <div class="dot" onclick="goTo(20)"></div>
+    <div class="dot" onclick="goTo(21)"></div>
+    <div class="dot" onclick="goTo(22)"></div>
+    <div class="dot" onclick="goTo(23)"></div>
+    <div class="dot" onclick="goTo(24)"></div>
+  </div>
+  <span id="counter">1 / 25</span>
+  <button class="nav-btn" onclick="go(1)">&#8594;</button>
+</div>
+
+<!-- <div id="coords">x: 0.00% &nbsp; y: 0.00%</div> -->
+<button id="fs-btn" onclick="fs()" title="Fullscreen">&#x26F6;</button>
+
+<script>
+  let cur = 0;
+  const total = 25;
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+  const counter = document.getElementById('counter');
+
+  function goTo(n) {
+    slides[cur].classList.remove('active');
+    dots[cur].classList.remove('active');
+    cur = ((n % total) + total) % total;
+    slides[cur].classList.add('active');
+    dots[cur].classList.add('active');
+    counter.textContent = (cur + 1) + ' / ' + total;
+    resetIdle();
+  }
+
+  function go(dir) { goTo(cur + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); go(1); }
+    else if (['ArrowLeft','ArrowUp'].includes(e.key)) { e.preventDefault(); go(-1); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total-1); }
+    else if (e.key.toLowerCase() === 'f') { fs(); }
+  });
+
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+  }, {passive:true});
+
+  function fs() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+    else document.exitFullscreen().catch(()=>{});
+  }
+
+  let idleT;
+  function resetIdle() {
+    document.body.classList.remove('idle');
+    clearTimeout(idleT);
+    idleT = setTimeout(() => document.body.classList.add('idle'), 3000);
+  }
+  document.addEventListener('mousemove', resetIdle);
+  document.addEventListener('keydown', resetIdle);
+  document.addEventListener('touchstart', resetIdle, {passive:true});
+  resetIdle();
+
+  // Coordinate display — commented out (debug tool)
+  /*
+  const coordEl = document.getElementById('coords');
+  const stage = document.getElementById('stage');
+
+  document.addEventListener('mousemove', e => {
+    const r = stage.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width * 100);
+    const y = ((e.clientY - r.top) / r.height * 100);
+    const inside = x >= 0 && x <= 100 && y >= 0 && y <= 100;
+    coordEl.textContent = inside
+      ? 'x: ' + x.toFixed(2) + '%   y: ' + y.toFixed(2) + '%'
+      : 'outside slide';
+  });
+  */
+</script>
+</body>
+</html>
